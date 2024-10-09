@@ -5,10 +5,16 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 #include <ESP32Servo.h>
+#include <WiFiClient.h>
+#include <Espalexa.h>
 Servo servo;
+Espalexa espalexa;
 
 
 #define RelayPin1 14  //D1
+
+
+void firstLightChanged(uint8_t brightness);
 
 
 void toggleActuator(uint8_t brightness)
@@ -29,4 +35,10 @@ void toggleActuator(uint8_t brightness)
     servo.write(0);
     Serial.println("Switch OFF");
   }
+}
+
+void loop()
+{
+  espalexa.loop();
+  delay(1);
 }
