@@ -13,6 +13,9 @@ Espalexa espalexa;
 
 #define RelayPin1 14  //D1
 
+// Debugging creds
+const char* ssid = "";
+const char* password =   "";
 
 void firstLightChanged(uint8_t brightness);
 
@@ -41,4 +44,24 @@ void loop()
 {
   espalexa.loop();
   delay(1);
+}
+
+// bool for wifi state check
+boolean connectWifi()
+{
+  boolean state = true;
+  int i = 0;
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
+  if (state) {
+  }
+  else {
+    Serial.println("Connection failed.");
+  }
+  return state;
 }
