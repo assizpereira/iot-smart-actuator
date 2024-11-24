@@ -10,15 +10,25 @@
 Servo servo;
 
 
+// define the GPIO connected with Relays
 #define RelayPin1 14  //D1
 
-// Debugging creds
-const char* ssid = "";
-const char* password =   "";
 
+
+// prototypes
+boolean connectWifi();
+
+//callback functions
 void firstLightChanged(uint8_t brightness);
+//void secondLightChanged(uint8_t brightness);
 
 
+// WiFi Credentials
+const char* ssid = ""; // type your wifi name
+const char* password =   ""; // type your wifi password
+
+
+// device names
 String Device_1_Name = "MCB";
 
 
@@ -36,6 +46,23 @@ void setup()
   // Initialise wifi connection
   wifiConnected = connectWifi();
 
+  if (wifiConnected)
+  {
+    // Define your devices here.
+    espalexa.addDevice(Device_1_Name, firstLightChanged); //simplest definition, default state off
+
+    
+
+    espalexa.begin();
+  }
+  else
+  {
+    while (1)
+    {
+      Serial.println("Cannot connect to WiFi. Please check data and reset the ESP.");
+      delay(2500);
+    }
+  }
 }
 
 void loop()
@@ -47,6 +74,7 @@ void loop()
 //our callback functions
 void firstLightChanged(uint8_t brightness)
 {
+  //Control the device
   if (brightness == 255)
     {
 
