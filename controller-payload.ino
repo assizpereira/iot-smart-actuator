@@ -1,14 +1,13 @@
-// THIS IS A WIP
-// Use at your own risk :)
-// setup for a esp32 vroom
-
 
 #ifdef ARDUINO_ARCH_ESP32
-#include <ESP32Servo.h>
+#include <WiFi.h>
+#else
+#include <ESP8266WiFi.h>
+#endif
 #include <WiFiClient.h>
 #include <Espalexa.h>
+#include <ESP32Servo.h>
 Servo servo;
-Espalexa espalexa;
 
 
 #define RelayPin1 14  //D1
@@ -20,24 +19,23 @@ const char* password =   "";
 void firstLightChanged(uint8_t brightness);
 
 
-void toggleActuator(uint8_t brightness)
-{
-// Simulate press in
-  if (brightness == 255)
-    {
+String Device_1_Name = "MCB";
 
-      servo.write(0);
-      delay(1000);
-      
-      Serial.println("Switch ON");
-    }
-  else
-  {
-    servo.write(100);
-    delay(1000);
-    servo.write(0);
-    Serial.println("Switch OFF");
-  }
+
+boolean wifiConnected = false;
+
+Espalexa espalexa;
+
+void setup()
+{
+  Serial.begin(115200);
+  pinMode(RelayPin1, OUTPUT);
+ // Serial.begin(115200);
+  servo.attach(14);    // ESP32 Pin
+
+  // Initialise wifi connection
+  wifiConnected = connectWifi();
+
 }
 
 void loop()
@@ -46,7 +44,28 @@ void loop()
   delay(1);
 }
 
-// bool for wifi state check
+//our callback functions
+void firstLightChanged(uint8_t brightness)
+{
+  if (brightness == 255)
+    {
+
+      servo.write(0);
+      delay(1000);
+      
+      Serial.println("MCB ON");
+    }
+  else
+  {
+    servo.write(100);
+    delay(1000);
+    servo.write(0);
+    Serial.println("MCB OFF");
+  }
+}
+
+
+// connect to wifi – returns true if successful or false if not
 boolean connectWifi()
 {
   boolean state = true;
@@ -54,11 +73,25 @@ boolean connectWifi()
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
+  Serial.println("");
+  Serial.println("Connecting to WiFi");
 
+  // Wait for connection
+  Serial.print("Connecting...");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
+    Serial.print(".");
+    if (i > 20) {
+      state = false; break;
+    }
+    i++;
   }
+  Serial.println("");
   if (state) {
+    Serial.print("Connected to ");
+    Serial.println(ssid);
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
   }
   else {
     Serial.println("Connection failed.");
